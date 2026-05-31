@@ -1,0 +1,11 @@
+data/*
+!data/.gitkeep
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.pytest_cache/
+.coverage
+.DS_Store

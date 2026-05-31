@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SeismicLog</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body data-tab="feed">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="wordmark">SeismicLog</div>
+      <div class="subtitle">Earthquake monitor &amp; address risk</div>
+    </div>
+    <div class="topbar-right">
+      <button id="refresh-btn" class="btn-secondary" type="button">Refresh from USGS</button>
+      <span class="health-dot" id="health-dot" title="API health"></span>
+      <span class="health-label" id="health-label">checking</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <a href="#feed" class="tab" data-tab="feed">Feed</a>
+    <a href="#watches" class="tab" data-tab="watches">Watches</a>
+  </nav>
+
+  <main>
+    <!-- ===== Feed tab ===== -->
+    <section class="tab-panel" data-panel="feed">
+      <div id="map"></div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">Window:</span>
+          <div class="segmented" id="window-seg">
+            <button type="button" data-days="1" class="active">24h</button>
+            <button type="button" data-days="7">7d</button>
+            <button type="button" data-days="30">30d</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label for="minmag-range" class="filter-label">Min magnitude</label>
+          <input id="minmag-range" type="range" min="0" max="7" step="0.5" value="2.5" />
+          <span id="minmag-label" class="mono">M &ge; 2.5</span>
+        </div>
+
+        <div class="filter-spacer"></div>
+
+        <div class="result-count">
+          <span id="result-count" class="mono">0</span> events
+          <span id="result-source" class="muted">(seed)</span>
+        </div>
+      </div>
+
+      <div id="feed-banner" class="banner hidden" role="alert"></div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="events-table">
+          <thead>
+            <tr>
+              <th style="width:18%">Time (UTC)</th>
+              <th style="width:12%">Magnitude</th>
+              <th style="width:10%">Depth</th>
+              <th style="width:45%">Place</th>
+              <th style="width:15%">USGS</th>
+            </tr>
+          </thead>
+          <tbody id="events-tbody">
+            <!-- rows injected by app.js -->
+          </tbody>
+        </table>
+        <div id="events-empty" class="empty-state hidden">No events match the current filter.</div>
+      </div>
+    </section>
+
+    <!-- ===== Watches tab ===== -->
+    <section class="tab-panel hidden" data-panel="watches">
+      <div class="watches-layout">
+        <aside class="watch-list-pane">
+          <ul class="watch-list" id="watch-list"></ul>
+          <button id="add-watch-btn" class="btn-outline" type="button">+ Add watch</button>
+        </aside>
+
+        <section class="watch-detail-pane" id="watch-detail">
+          <div class="empty-pane">Select a watch on the left, or add a new one.</div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Data: USGS (CC0) and OpenStreetMap (ODbL). Risk numbers are heuristic
+    and not a substitute for an official seismic hazard assessment.
+  </footer>
+
+  <!-- ===== Add-watch modal ===== -->
+  <div class="modal-backdrop hidden" id="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">Add watch</h2>
+      <form id="add-watch-form" novalidate>
+        <label for="label-input">Label</label>
+        <input id="label-input" name="label" type="text" maxlength="80" placeholder="Home" required />
+        <div class="field-error" id="err-label"></div>
+
+        <label for="address-input">Address</label>
+        <input id="address-input" name="address" type="text" maxlength="240"
+               placeholder="1600 Pennsylvania Ave NW, Washington, DC" required />
+        <div class="hint">Geocoded via OpenStreetMap Nominatim. Be specific (city + country).</div>
+        <div class="field-error" id="err-address"></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-text" id="modal-cancel">Cancel</button>
+          <button type="submit" class="btn-primary" id="modal-submit">Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
