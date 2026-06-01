@@ -1,4 +1,4 @@
-[Смотреть демо](./seismiclog.mp4)
+[Watch_demo](./seismiclog.mp4)
 # SeismicLog
 
 Earthquake monitor with per-address long-term risk briefings.
